@@ -1,10 +1,12 @@
 import socket
 import threading
+import os
 
-
-# Hard coded variables
-HOST = "127.0.0.1"
-PORT = 10000
+# Get configuration from environment variables or use hard-coded defaults
+# For local network access, set TCP_HOST=0.0.0.0 in environment variables
+# Default to 127.0.0.1 for localhost-only, but can be overridden for network access
+HOST = os.environ.get("TCP_HOST", "127.0.0.1")
+PORT = int(os.environ.get("TCP_PORT", "10000"))
 
 # Client registry: maps username -> (connection, address)
 # Protected by a lock for thread-safe access
