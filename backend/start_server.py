@@ -8,7 +8,6 @@ import sys
 import os
 import signal
 import time
-from threading import Thread
 
 # Processes to manage
 processes = []
@@ -48,7 +47,8 @@ processes.append(ws_process)
 
 print("Both servers are running!")
 print(f"TCP Server: {os.environ.get('TCP_HOST', '127.0.0.1')}:{os.environ.get('TCP_PORT', '10000')}")
-print(f"WebSocket Server: {os.environ.get('WS_HOST', '0.0.0.0')}:{os.environ.get('WS_PORT', os.environ.get('PORT', '8765'))}")
+# PORT is Render's assigned port - prioritize it over WS_PORT
+print(f"WebSocket Server: {os.environ.get('WS_HOST', '0.0.0.0')}:{os.environ.get('PORT', os.environ.get('WS_PORT', '8765'))}")
 
 # Wait for processes (keep running until one exits)
 try:
