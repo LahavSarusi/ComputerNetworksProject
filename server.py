@@ -1,34 +1,73 @@
 import socket
 import threading
 
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 10000
+
+# Dictionary to store connected clients: {username: connection_socket}
+clients = {}
+clients_lock = threading.Lock()
 
 
 def handle_client(conn, addr):
     """
-    This function runs in a separate thread for each connected client.
-    It handles the communication logic (receiving and sending messages).
+    Handles communication with a single client in a separate thread.
     """
-    print(f"Client connected: {addr}")
+    print(f"[NEW CONNECTION] {addr} connected.")
+    username = ""
+
     try:
-        welcome_message = "Welcome"
-        conn.sendall(welcome_message.encode('utf-8')) # converts the string into bytes
+        # Step 1: Request a unique username from the client
+        conn.sendall("Enter your username: ".encode('utf-8'))
+        username = conn.recv(1024).decode('utf-8').strip()
 
+        # Check if the username is taken and add to the list
+        with clients_lock:
+            if username in clients:
+                conn.sendall("Username already taken. Disconnecting.".encode('utf-8'))
+                conn.close()
+                return
+            clients[username] = conn
+
+        print(f"[REGISTERED] User '{username}' added from {addr}")
+        conn.sendall(f"Welcome {username}! To chat, type: TargetName:Message".encode('utf-8'))
+
+        # Step 2: Main loop for handling messages
         while True:
-            data = conn.recv(1024) # Receive data from the client (buffer size is 1024 bytes)
+            data = conn.recv(1024)
             if not data:
-                break
+                break  # Client disconnected
 
-            data_d = data.decode("utf-8") # Decode the received bytes back into a readable string
-            print(f"Message from client {addr}: {data_d}")
+            message = data.decode("utf-8")
+            print(f"[{username}]: {message}")
 
-            response = f"Server received: {data_d.upper()}"
-            conn.sendall(response.encode('utf-8')) # Send the response back to the client
+            # Parse the message to identify the recipient
+            # Expected format: TargetName:Message content
+            if ":" in message:
+                target_name, msg_content = message.split(":", 1)
+                target_name = target_name.strip()
+
+                # Send the message to the target client if they exist
+                with clients_lock:
+                    if target_name in clients:
+                        target_conn = clients[target_name]
+                        formatted_msg = f"[{username}]: {msg_content}"
+                        target_conn.sendall(formatted_msg.encode('utf-8'))
+                    else:
+                        conn.sendall(f"User '{target_name}' not found.".encode('utf-8'))
+            else:
+                conn.sendall("Invalid format. Use: TargetName:Message".encode('utf-8'))
 
     except ConnectionResetError:
-        print(f"Client disconnected abruptly: {addr}")
+        print(f"[ERROR] Client {addr} disconnected abruptly.")
+    except Exception as e:
+        print(f"[ERROR] {e}")
     finally:
+        # Remove the client from the list upon disconnection
+        with clients_lock:
+            if username in clients:
+                del clients[username]
+                print(f"[DISCONNECT] User '{username}' removed.")
         conn.close()
 
 
@@ -36,16 +75,30 @@ def start_server():
     """
     Sets up the server socket and listens for incoming connections.
     """
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a socket object
-    server_socket.bind((HOST, PORT)) # Bind the socket to the specified HOST and PORT
-    server_socket.listen() # Enable the server to accept connections
-    print(f"Server listening on {HOST}:{PORT}")
+    print("[STARTING] Server is starting...")
+    # Create a socket object
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Bind the socket to the specified HOST and PORT
+    server_socket.bind((HOST, PORT))
+
+    # Enable the server to accept connections
+    server_socket.listen()
+
+    # Print the machine's local IP address so you know what to put in the client code
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    print(f"[LISTENING] Server is listening on {HOST}:{PORT}")
+    print(f"--> Tell the client to connect to IP: {local_ip}")
 
     while True:
-        conn, addr = server_socket.accept() # pauses execution and waits for a new connection
-        client_thread = threading.Thread(target=handle_client, args=(conn, addr)) # Create a new Thread to handle this client
-        client_thread.start() # Start the thread
-        print(f"Active clients: {threading.active_count() - 1}") # Print the number of active threads
+        # pauses execution and waits for a new connection
+        conn, addr = server_socket.accept()
+
+        # Create and start a new Thread to handle this client
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
 if __name__ == "__main__":
