@@ -1,8 +1,12 @@
 # מערכת צ'אט TCP
 
 **גיתם ולהב מציגים:** פרויקט בקורס רשתות תקשורת - אפליקציית צ'אט בזמן אמת עם Backend ב-TCP ו-Frontend ב-React.
-
+### Frontend GUI
 ![frontend-gif](https://github.com/user-attachments/assets/52044d71-d789-4a70-a1de-671f9f3881ae)
+
+### CLI Based
+![networking-project-gif](https://github.com/user-attachments/assets/05f07fba-b5f1-43dd-8380-992527b0bb5a)
+
 
 
 
