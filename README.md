@@ -2,6 +2,11 @@
 
 **גיתם ולהב מציגים:** פרויקט בקורס רשתות תקשורת - אפליקציית צ'אט בזמן אמת עם Backend ב-TCP ו-Frontend ב-React.
 
+![frontend-gif](https://github.com/user-attachments/assets/52044d71-d789-4a70-a1de-671f9f3881ae)
+
+
+
+
 ## איך מפעילים?
 
 ### 1. מתקינים ספריות
