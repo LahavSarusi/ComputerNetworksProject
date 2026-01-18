@@ -1,5 +1,5 @@
 """
-Main WebSocket bridge server entry point.
+WebSocket bridge server entry point.
 """
 
 import asyncio
@@ -10,12 +10,9 @@ from .websocket_handler import handle_websocket
 
 async def main():
     """Start the WebSocket bridge server."""
-    print(f"WebSocket bridge server starting on ws://{WS_HOST}:{WS_PORT}")
-    print(f"Connecting to TCP server at {TCP_HOST}:{TCP_PORT}")
-    
-    # Start WebSocket server and run forever
+    print(f"WebSocket bridge: ws://{WS_HOST}:{WS_PORT} -> tcp://{TCP_HOST}:{TCP_PORT}")
     async with serve(handle_websocket, WS_HOST, WS_PORT):
-        await asyncio.Future()  # Run forever
+        await asyncio.Future()
 
 
 if __name__ == "__main__":
