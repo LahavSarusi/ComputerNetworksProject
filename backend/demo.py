@@ -23,23 +23,23 @@ CLIENT_NAMES = ["Alice", "Bob", "Charlie", "Diana"]
 # Sequential conversation script - each entry is (sender_index, target_name, message, delay_after)
 # This ensures the conversation flows naturally
 CONVERSATION_SCRIPT = [
-    (0, "Bob", "Hey Bob, how's your day going?", 2),
-    (1, "Alice", "Hi Alice! It's going well, thanks for asking. How about you?", 2),
-    (0, "Bob", "I'm doing great, thanks!", 2),
-    (0, "Charlie", "Charlie, did you finish that project we discussed?", 2),
-    (2, "Alice", "Yes, I finished it yesterday. Thanks for checking!", 2),
-    (1, "Charlie", "Charlie, what time is the meeting today?", 2),
-    (2, "Bob", "The meeting is at 3 PM in the conference room", 2),
-    (1, "Diana", "Diana, did you see the email about the schedule change?", 2),
-    (3, "Bob", "Yes, I saw it. Thanks for the heads up!", 2),
-    (0, "Diana", "Diana, are we still meeting for lunch tomorrow?", 2),
-    (3, "Alice", "Yes, lunch tomorrow sounds great! See you at noon", 2),
-    (2, "Diana", "Diana, can you send me those files when you get a chance?", 2),
-    (3, "Charlie", "Sure, I'll send them over in a few minutes", 2),
+    (0, "Bob", "Hey Bob, how's your day going?", 1),
+    (1, "Alice", "Hi Alice! It's going well, thanks for asking. How about you?", 1),
+    (0, "Bob", "I'm doing great, thanks!", 1),
+    (0, "Charlie", "Charlie, did you finish that project we discussed?", 1),
+    (2, "Alice", "Yes, I finished it yesterday. Thanks for checking!", 1),
+    (1, "Charlie", "Charlie, what time is the meeting today?", 1),
+    (2, "Bob", "The meeting is at 3 PM in the conference room", 1),
+    (1, "Diana", "Diana, did you see the email about the schedule change?", 1),
+    (3, "Bob", "Yes, I saw it. Thanks for the heads up!", 1),
+    (0, "Diana", "Diana, are we still meeting for lunch tomorrow?", 1),
+    (3, "Alice", "Yes, lunch tomorrow sounds great! See you at noon", 1),
+    (2, "Diana", "Diana, can you send me those files when you get a chance?", 1),
+    (3, "Charlie", "Sure, I'll send them over in a few minutes", 1),
 ]
 
 
-def automated_client(name, client_socket):
+def automated_client(name, client_socket, stop_flag):
     """
     Creates an automated client that connects, registers, and can send messages.
     """
@@ -57,13 +57,19 @@ def automated_client(name, client_socket):
         # Start receiving thread
         def receive():
             try:
-                while True:
-                    data = client_socket.recv(1024)
-                    if not data:
+                while not stop_flag.is_set():
+                    try:
+                        client_socket.settimeout(0.5)
+                        data = client_socket.recv(1024)
+                        if not data:
+                            break
+                        message = data.decode('utf-8')
+                        if not message.startswith("SYSTEM:") and not message.startswith("Message sent"):
+                            print(f"[{name}] Received: {message.strip()}")
+                    except socket.timeout:
+                        continue
+                    except:
                         break
-                    message = data.decode('utf-8')
-                    if not message.startswith("SYSTEM:") and not message.startswith("Message sent"):
-                        print(f"[{name}] Received: {message.strip()}")
             except:
                 pass
         
@@ -99,12 +105,15 @@ def demo():
     
     # Connect all clients first
     client_sockets = {}
-    for i, name in enumerate(CLIENT_NAMES):
-        time.sleep(0.3)  # Stagger connections
+    stop_flags = {}
+    for name in CLIENT_NAMES:
+        time.sleep(0.2)  # Stagger connections
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((HOST, PORT))
-            client_sockets[name] = automated_client(name, sock)
+            stop_flag = threading.Event()
+            stop_flags[name] = stop_flag
+            client_sockets[name] = automated_client(name, sock, stop_flag)
         except Exception as e:
             print(f"Error connecting {name}: {e}")
     
@@ -116,7 +125,7 @@ def demo():
     for sender_idx, target_name, message, delay in CONVERSATION_SCRIPT:
         sender_name = CLIENT_NAMES[sender_idx]
         if sender_name in client_sockets and client_sockets[sender_name]:
-            full_message = f"{target_name}:{message}"
+            full_message = f"{target_name}: {message}"
             try:
                 client_sockets[sender_name].sendall(full_message.encode('utf-8'))
                 print(f"[{sender_name}] → {target_name}: {message}")
@@ -125,18 +134,24 @@ def demo():
         time.sleep(delay)
     
     # Keep connection alive to see final messages
-    time.sleep(2)
+    time.sleep(1)
     
     # Disconnect all clients
     print("\nDisconnecting clients...\n")
     for name, sock in client_sockets.items():
         if sock:
             try:
+                # Signal threads to stop
+                if name in stop_flags:
+                    stop_flags[name].set()
                 sock.sendall("exit".encode('utf-8'))
                 sock.close()
                 print(f"[{name}] Disconnected")
             except:
                 pass
+    
+    # Small delay to let threads finish
+    time.sleep(0.5)
     
     print("\n" + "=" * 60)
     print("Demo complete!")
