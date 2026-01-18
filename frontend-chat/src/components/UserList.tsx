@@ -39,7 +39,7 @@ export function UserList({
               <div
                 key={user}
                 onClick={() => onSelectUser?.(user)}
-                className={`p-2 rounded-md cursor-pointer transition-colors ${
+                className={`p-2 rounded-md cursor-pointer transition-colors hover:bg-amber-700/50 ${
                   selectedUser === user
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted text-foreground"
