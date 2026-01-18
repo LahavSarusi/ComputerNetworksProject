@@ -52,6 +52,7 @@ def handle_client(conn, addr):
         conn.sendall(f"SUCCESS: You are registered as '{username}'\n".encode('utf-8'))
         conn.sendall("To send a message, use format: TARGET_USERNAME:your message here\n".encode('utf-8'))
         conn.sendall("Type 'list' to see online users, 'exit' to disconnect\n".encode('utf-8'))
+        conn.sendall("Type 'everyone:<message>' to send a message to everyone\n".encode('utf-8'))
         
         # Construct the broadcast message to everyone
         broadcast_message = f"SYSTEM: {username} has joined the chat\n"
@@ -92,6 +93,28 @@ def handle_client(conn, addr):
                     user_list = ", ".join(clients.keys())
                     # Send the list of online users to the client
                 conn.sendall(f"Online users: {user_list}\n".encode('utf-8'))
+                continue
+
+            # Handle a user sending a "everyone" message
+            elif message.lower().startswith("everyone:"):
+                # Extract and broadcast message to everyone
+                _, everyone_message = message.split(":", 1)
+                everyone_message = everyone_message.strip()
+                
+                if not everyone_message:
+                    conn.sendall("ERROR: Message cannot be empty\n".encode('utf-8'))
+                    continue
+                
+                with clients_lock:
+                    formatted_message = f"{username}: {everyone_message}\n"
+                    for other_username, (other_conn, _) in clients.items():
+                        try:
+                            other_conn.sendall(formatted_message.encode('utf-8'))
+                        except (ConnectionResetError, BrokenPipeError, OSError):
+                            pass
+                    conn.sendall("Message sent to everyone\n".encode('utf-8'))
+                
+                print(f"Broadcast from {username}: {everyone_message}")
                 continue
             
             # Handle "direct" texts (not really, it's peer-server-peer)
@@ -159,10 +182,11 @@ def handle_client(conn, addr):
                     broadcast_message = f"SYSTEM: {username} left the chat\n"
                     # Run over all the other clients and send the broadcast message to them
                     for other_username, (other_conn, _) in clients.items():
-                        try:
-                            other_conn.sendall(broadcast_message.encode('utf-8'))
-                        except (ConnectionResetError, BrokenPipeError, OSError):
-                            pass  # probably because the client disconnected
+                        if other_username != username:
+                            try:
+                                other_conn.sendall(broadcast_message.encode('utf-8'))
+                            except (ConnectionResetError, BrokenPipeError, OSError):
+                                pass  # probably because the client disconnected
         conn.close()
 
 
@@ -170,9 +194,16 @@ def start_server():
     """
     Sets up the server socket and listens for incoming connections.
     """
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a socket object
-    server_socket.bind((HOST, PORT)) # Bind the socket to the specified HOST and PORT
-    server_socket.listen() # Enable the server to accept connections
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow address reuse
+
+    # Fix for port reuse error
+    try:
+        server_socket.bind((HOST, PORT))
+    except OSError as e:
+        print(f"Error: Port {PORT} is already in use. Please stop the other server or use a different port.")
+        return
+    server_socket.listen()
     print(f"Server listening on {HOST}:{PORT}")
 
     while True:

@@ -68,7 +68,16 @@ export function MessageList({ messages, currentUser }: MessageListProps) {
                       }`}
                     >
                       {isSent ? "You" : senderName}
-                      {message.to && ` → ${message.to}`}
+                      {message.to && (
+                        <span>
+                          {" → "}
+                          {message.to === "everyone" ? (
+                            <span className="font-bold">📢 Everyone</span>
+                          ) : (
+                            message.to
+                          )}
+                        </span>
+                      )}
                     </span>
                   </div>
                   <p

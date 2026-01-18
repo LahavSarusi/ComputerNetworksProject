@@ -42,7 +42,7 @@ export function ChatPage() {
         if (connectionState.connected) {
           sendCommand("list");
         }
-      }, 20000); // Refresh every 20 seconds
+      }, 5000); // Refresh every 5 seconds
 
       return () => {
         clearTimeout(timeoutId);
