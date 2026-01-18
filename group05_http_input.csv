@@ -1,0 +1,10 @@
+﻿msg_id,app_protocol,src_app,dst_app,message,timestamp,src_port,dst_port
+1,HTTP,client_browser,web_server,GET /index1.html,0.015,55555,12345
+2,HTTP,client_browser,web_server,GET /index2.html,0.011,55555,12345
+3,HTTP,client_browser,web_server,GET /index3.html,0.01,55555,12345
+4,HTTP,client_browser,web_server,GET /index4.html,0.02,55555,12345
+5,HTTP,client_browser,web_server,GET /index5.html,0.014,55555,12345
+6,HTTP,client_browser,web_server,GET /index6.html,0.017,55555,12345
+7,HTTP,client_browser,web_server,GET /index7.html,0.015,55555,12345
+8,HTTP,client_browser,web_server,GET /index8.html,0.012,55555,12345
+9,HTTP,client_browser,web_server,GET /index9.html,0.009,55555,12345

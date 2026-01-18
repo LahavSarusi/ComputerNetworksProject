@@ -1,151 +1,83 @@
-# Computer Networks Project
+# מערכת צ'אט מבוססת TCP Sockets (TCP/IP Chat System)
 
-**Authors:** Gitam Shimoni and Lahav Sarusi
+## תיאור הפרויקט
 
-## Description
+פרויקט זה מממש מערכת צ'אט שרת-לקוח בפייתון, המאפשרת העברת הודעות בזמן אמת בין משתמשים שונים ברשת. המערכת נכתבה באמצעות ספריות סטנדרטיות בלבד, ללא שימוש בספריות חיצוניות, ומממשת תקשורת בפרוטוקול TCP לאמינות מלאה של הנתונים.
 
-A simple client-server networking implementation using Python sockets with a modern React frontend. The server supports multiple concurrent clients using threading, and includes a WebSocket bridge to enable real-time chat through a web interface.
+השרת תומך בריבוי משתמשים (Multithreading) ומנהל את ניתוב ההודעות בין הלקוחות המחוברים.
 
-## Components
+## דרישות קדם
 
-### Backend
+Python 3.6 ומעלה מותקן על המחשב.
+חיבור לרשת (LAN/WiFi) במידה ומריצים את הלקוח והשרת על מחשבים נפרדים.
 
-- **Server** (`backend/server.py`): Multi-threaded TCP server that listens on port 10000 and handles client connections
-- **Client** (`backend/client.py`): TCP client that connects to the server and enables bidirectional communication
-- **WebSocket Bridge** (`backend/websocket_bridge.py`): Bridges WebSocket connections from the frontend to the TCP server
-- **Demo** (`backend/demo.py`): Automated demo with multiple clients
+## הוראות התקנה והרצה
 
-### Frontend
+### שלב 1: הפעלת השרת
 
-- **React Chat Application** (`frontend-chat/`): Modern web-based chat interface built with React, TypeScript, Tailwind CSS, and shadcn/ui
+השרת צריך לרוץ ראשון כדי שיוכל לקבל חיבורים.
 
-## Setup
+פתח את הTerminal בתיקייה בה נמצא הקובץ server.py.
 
-### Backend Setup
+הרץ את הפקודה:
+python server.py
 
-1. Install Python dependencies:
+עם הפעלת השרת, הוא ידפיס למסך את כתובת ה-IP המקומית שלו.
 
-   ```bash
-   pip install websockets
-   ```
+חשוב: העתק את כתובת ה-IP הזו (לדוגמה: 192.168.1.15). תזדקק לה כדי להגדיר את הלקוח.
 
-   Or use a virtual environment:
+השרת כעת במצב האזנה וממתין ללקוחות.
 
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r backend/requirements.txt
-   ```
+### שלב 2: הגדרת הלקוח
 
-2. Start the TCP server:
+לפני הרצת הלקוח, יש להגדיר לו לאן להתחבר.
 
-   ```bash
-   python backend/server.py
-   ```
+פתח את הקובץ client.py, מצא את השורה המגדירה את ערך המשתנה HOST בתחילת הקובץ:
 
-3. In a separate terminal, start the WebSocket bridge:
-   ```bash
-   python backend/websocket_bridge.py
-   ```
+HOST = "..."
 
-### Frontend Setup
+שנה את הערך לכתובת ה-IP שהשרת הציג בשלב 1.
+ 
+בגלל שאנחנו מריצים את הלקוח במחשב אחר באותה רשת, חובה להשתמש ב-IP שהשרת הציג.
 
-1. Navigate to the frontend directory:
 
-   ```bash
-   cd frontend-chat
-   ```
+### שלב 3: הפעלת הלקוח
 
-2. Install dependencies:
+פתח Terminal חדש במחשב אחר.
 
-   ```bash
-   npm install
-   ```
+הרץ את הפקודה:
+python client.py
 
-3. Start the development server:
+בצע שלב זה עבור כל משתתף שרוצה להתחבר לצ'אט.
 
-   ```bash
-   npm run dev
-   ```
+## מדריך למשתמש
 
-4. Open your browser to the URL shown (typically `http://localhost:5173`)
+לאחר הפעלת הלקוח, עקוב אחר ההוראות הבאות:
 
-## Usage
 
-### Web Interface
+התחברות: המערכת תבקש ממך להזין שם משתמש ייחודי (Username). הקלד את השם ולחץ Enter.
 
-1. Start both the TCP server and WebSocket bridge (see Setup above)
-2. Start the frontend development server
-3. Open the application in your browser
-4. Enter a username on the login page
-5. Once connected, you can:
-   - See online users in the sidebar
-   - Select a user from the dropdown or click on them in the user list
-   - Send messages to other users
-   - View message history
-   - Disconnect when done
+שליחת הודעה: כדי לשלוח הודעה למשתמש אחר, יש להשתמש בפורמט הבא:
 
-### Command Line Client
+TargetName:Your Message Here
 
-1. Start the TCP server:
+דוגמה: אם השם שלי הוא David ואני רוצה לשלוח הודעה ל-Moshe, אכתוב:
 
-   ```bash
-   python backend/server.py
-   ```
 
-2. In another terminal, run the client:
+Moshe:Hello how are you?
 
-   ```bash
-   python backend/client.py
-   ```
+יציאה: כדי להתנתק מהצ'אט, הקלד את המילה exit ולחץ Enter.
 
-3. Enter your username when prompted
-4. Send messages using format: `TARGET_USERNAME:your message here`
-5. Type `list` to see online users
-6. Type `exit` to disconnect
+## פתרון תקלות נפוצות
 
-### Demo
+### שגיאת "Connection Refused":
 
-Run the automated demo:
+וודא שהשרת (server.py) רץ בחלון נפרד.
 
-```bash
-python backend/demo.py
-```
+וודא שכתובת ה-IP בקובץ client.py נכונה ותואמת לכתובת של מחשב השרת.
 
-## Architecture
+אם מדובר במחשבים שונים, וודא שחומת האש (Firewall) במחשב השרת אינה חוסמת את פורט 10000.
 
-```
-Frontend (React) ←→ WebSocket Bridge (port 8765) ←→ TCP Server (port 10000)
-```
+### שגיאת "Username already taken":
 
-The WebSocket bridge translates between:
-
-- WebSocket JSON messages (frontend ↔ bridge)
-- TCP text protocol (bridge ↔ TCP server)
-
-## Features
-
-- Real-time messaging between multiple users
-- Username registration and validation
-- Online users list
-- System notifications (user joined/left)
-- Modern, responsive UI
-- Error handling and connection management
-
-## Technology Stack
-
-### Backend
-
-- Python 3
-- Socket programming
-- Threading
-- WebSockets (websockets library)
-
-### Frontend
-
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- shadcn/ui components
-- React Router
+השרת מזהה שכבר קיים משתמש מחובר עם השם הזה. נסה להתחבר מחדש עם שם אחר.

@@ -1,5 +1,6 @@
 # Python
 venv/
+.venv/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -37,3 +38,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
