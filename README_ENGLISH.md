@@ -44,6 +44,7 @@ Because of that, We have added a BONUS (in addition to the original server.py) s
 **Step 1:** Start the server with WebSocket bridge:
 
 ```bash
+cd backend
 python start_for_frontend.py
 ```
 
