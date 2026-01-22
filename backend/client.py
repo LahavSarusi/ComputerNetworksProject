@@ -1,8 +1,8 @@
 import socket
 import threading
 
-
-HOST = "127.0.0.1"  # The target server's IP address.
+# TODO: Replace with your target server's IP address (run 'ipconfig' in CMD to find it)
+HOST = "192.168.0.11"
 PORT = 10000
 
 
@@ -27,7 +27,7 @@ def receive_messages(client_socket):
             print("You: ", end="", flush=True)  # Re-print prompt
             
     except (ConnectionResetError, OSError):
-        # TODO: Lahav - This happens when client disconnects, so we don't need to print an error or do anything
+        # This happens when client disconnects
         pass
     except Exception as e:
         # only print unexpected errors
@@ -78,7 +78,7 @@ def start_client():
                 try:
                     client_socket.sendall("exit".encode('utf-8'))
                 except:
-                    pass  # TODO: Lahav - probably because the socket is already closed
+                    pass  # probably because the socket is already closed
                 break
 
             # Send message to server (which will forward to target client)

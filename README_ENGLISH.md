@@ -23,7 +23,10 @@ python server.py
 You have two options to test the chat:
 
 #### Option A: Terminal Client (Original)
+Go to the file "client.py" and find the variable named "HOST" at the top of the file.
+Replace it with your target server's IP address
 
+Then run this command in the terminal:
 ```bash
 python client.py
 ```
@@ -46,7 +49,10 @@ python start_for_frontend.py
 This starts both the TCP server and WebSocket bridge.
 
 **Step 2:** Start the frontend:
+Go to the path "frontend-chat/src/hooks" to the file "useWebsocket.ts" and find the variable named "HOST" at the top of the file. 
+Replace it with your local machine's IP address
 
+Then run this commands in the terminal:
 ```bash
 cd frontend-chat
 npm install

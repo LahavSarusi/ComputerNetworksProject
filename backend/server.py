@@ -5,7 +5,7 @@ import os
 # Get configuration from environment variables or use hard-coded defaults
 # For local network access, set TCP_HOST=0.0.0.0 in environment variables
 # Default to 127.0.0.1 for localhost-only, but can be overridden for network access
-HOST = os.environ.get("TCP_HOST", "127.0.0.1")
+HOST = os.environ.get("TCP_HOST", "0.0.0.0")
 PORT = int(os.environ.get("TCP_PORT", "10000"))
 
 # Client registry: maps username -> (connection, address)
@@ -82,7 +82,6 @@ def handle_client(conn, addr):
             print(f"Message from {username} ({addr}): {message}")
 
             # Handle special commands (For now it's exit and list)
-            # TODO: Gitam - check for other cool commands we can add
             if message.lower() == "exit":
                 # If the client wants to exit, break the loop and close the connection
                 break
@@ -176,8 +175,6 @@ def handle_client(conn, addr):
                     print(f"Client {username} ({addr}) disconnected")
                     print(f"Active users: {list(clients.keys())}")
                     
-                    # Gitam TODO: Broadcast that user left to all other clients
-
                     # Construct the broadcast message to everyone
                     broadcast_message = f"SYSTEM: {username} left the chat\n"
                     # Run over all the other clients and send the broadcast message to them

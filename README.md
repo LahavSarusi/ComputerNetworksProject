@@ -33,7 +33,10 @@ python server.py
 קיימות שתי אפשרויות לבדיקת הצ'אט:
 
 #### אפשרות א': לקוח טרמינל (המקור)
+פתח את הקובץ "client.py" ומצא את המשתנה "HOST" בראש הקובץ.
+החלף אותו בכתובת ה-IP של שרת היעד שלך
 
+לאחר מכן הפעל את הפקודה הזו בטרמינל:
 ```bash
 python client.py
 
@@ -58,7 +61,10 @@ python start_for_frontend.py
 זה יפעיל גם את שרת ה-TCP וגם את גשר ה-WebSocket.
 
 **שלב 2:** הפעלת ה-Frontend:
+עבור אל הנתיב "frontend-chat/src/hooks", פתח את הקובץ "useWebsocket.ts" ומצא את המשתנה בשם "HOST" בראש הקובץ.
+החלף אותו בכתובת ה-IP של שרת היעד שלך
 
+לאחר מכן הפעל את הפקודות הבאות בטרמינל:
 ```bash
 cd frontend-chat
 npm install

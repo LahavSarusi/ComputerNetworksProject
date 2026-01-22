@@ -5,8 +5,9 @@ import type {
   ConnectionState,
 } from "@/types/chat";
 
-/** WebSocket server URL - uses environment variable in production, localhost in development */
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8765";
+// WebSocket server URL
+// TODO: Replace with your local machine's IP address (run 'ipconfig' in CMD to find it)
+const WS_URL = "ws://192.168.0.11:8765";
 
 /** Return type for useWebSocket hook */
 interface UseWebSocketReturn {
